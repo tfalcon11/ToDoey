@@ -11,6 +11,7 @@ import RealmSwift
 
 class Category: Object {
     @objc dynamic var name: String = ""
+    @objc dynamic var bColor: String = ""
     let items = List<Item>()
     //let array: Array<Int> = [1,2,3]    andere Schreibvariante von Array mit <>
     //let array: Array<Int>()            andere Schreibvariante von leerem Array mit <>

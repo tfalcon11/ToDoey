@@ -8,8 +8,9 @@
 
 import UIKit
 import RealmSwift
+import ChameleonFramework
 
-class CategoryViewController: UITableViewController {
+class CategoryViewController: SwipeTableViewController {
     
     let realm = try! Realm()
     
@@ -19,6 +20,8 @@ class CategoryViewController: UITableViewController {
         super.viewDidLoad()
         
         loadCategories()
+        
+        tableView.separatorStyle = .none
 
     }
     
@@ -28,8 +31,9 @@ class CategoryViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CategoryCell", for: indexPath)
+        let cell = super.tableView(tableView, cellForRowAt: indexPath)
         cell.textLabel!.text = categories?[indexPath.row].name ?? "No categories added yet"
+        cell.backgroundColor = UIColor(hexString: (categories?[indexPath.row].bColor) ?? "FF9300")
         return cell
     }
     
@@ -65,6 +69,22 @@ class CategoryViewController: UITableViewController {
         tableView.reloadData()
     }
     
+    //MARK: - Delete Data from Swipe
+    override func updateModel(at indexpath: IndexPath) {
+        
+//        super .updateModel(at: indexpath)
+        
+        if let categorieyForDeletion = self.categories?[indexpath.row] {
+            do {
+                try self.realm.write {
+                    self.realm.delete(categorieyForDeletion)
+                }
+            } catch {
+                print("Error deleting category: \(error)")
+            }
+        }
+    }
+    
     //MARK: - Add New Categories
     @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
         var textField = UITextField()
@@ -72,6 +92,7 @@ class CategoryViewController: UITableViewController {
         let action = UIAlertAction(title: "Add", style: .default) { (action) in
             let newCategory = Category()
             newCategory.name = textField.text!
+            newCategory.bColor = UIColor.randomFlat.hexValue()
 
             self.save(category: newCategory)
         }
@@ -85,11 +106,6 @@ class CategoryViewController: UITableViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    
-
-    
-    
     //MARK: - TableView Manipulation Methods
-    
     
 }
