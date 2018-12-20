@@ -13,8 +13,9 @@ import ChameleonFramework
 class TodoListViewController: SwipeTableViewController {
     
     var todoItems: Results<Item>?
-    
     let realm = try! Realm()
+    
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var selectedCategory: Category? {
         didSet {           //wenn ausgewählt/verändert, erfolgt folgendes
@@ -27,8 +28,30 @@ class TodoListViewController: SwipeTableViewController {
         // Do any additional setup after loading the view, typically from a nib.
         print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
-        tableView.separatorStyle = .none
+        tableView.separatorStyle = .none           //keine Linien bei zwischen Einträgen
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        title = selectedCategory?.name                  //NavigationBar Titel ist ausgewähltes Element
+        guard let bColorHex = selectedCategory?.bColor else { fatalError() }
+        updateNavBar(withHexCode: bColorHex)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        updateNavBar(withHexCode: "FF9300")
+    }
+    
+    //Mark: - Nav Bar Setup Methods
+    func updateNavBar (withHexCode colorHexCode: String) {
+        guard let navBar = navigationController?.navigationBar else {fatalError("Navigationcontroller does not exist.")}
+        guard let navBarColor = UIColor(hexString: colorHexCode) else { fatalError() }
+        navBar.barTintColor = navBarColor
+        navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+        navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor: ContrastColorOf(navBarColor, returnFlat: true)]
+        searchBar.barTintColor = navBarColor         //SearchBar Umrandung/Hintergrund gleiche Farbe wie NavigationBar
+    }
+    
+    
     
     //MARK: - Tableview Datasource Methods
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
